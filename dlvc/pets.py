@@ -1,4 +1,4 @@
-from dlvc.dataset import Sample, Subset, ClassificationDataset
+from dlvc.dataset import Sample, ClassificationDataset
 
 import pickle
 import numpy as np
@@ -17,7 +17,7 @@ class PetsDataset(ClassificationDataset):
     Dataset of cat and dog images from CIFAR-10 (class 0: cat, class 1: dog).
     '''
 
-    def __init__(self, fdir: str, subset: Subset):
+    def __init__(self, fdir: str):
 
         '''
         Loads a subset of the dataset from a directory fdir that contains the Python version
@@ -33,10 +33,9 @@ class PetsDataset(ClassificationDataset):
         and returned as uint8 numpy arrays with shape 32*32*3, in BGR channel order.
         '''
 
-        self._data_set = []
         self.dir = fdir
-        self.subset = subset
-
+        self._data_set = []
+        self._class_number = 0
 
     def load_dogs_cats_data(self, data, labels):
 
@@ -45,9 +44,13 @@ class PetsDataset(ClassificationDataset):
 
         dog_label = label_names.index('dog')
         cat_label = label_names.index('cat')
-        dogscats_set = []
+        self._class_number = 2
+
+        dogs_cats_set = []
 
         data = data.reshape((len(data), 3, 32, 32))  # first axis stays the same, second axis (3072 values) is split into 3, and the 1024 pixels are split into 32x32 pixels
+        for image in data:
+            image[[0, 2]] = image[[2, 0]]
         data = np.rollaxis(data, 1, 4)  # put 3 at the end
         labels = np.array(labels)
 
@@ -55,13 +58,13 @@ class PetsDataset(ClassificationDataset):
 
             if (labels[j] == cat_label):
                 sample = Sample(idx=j, data=data[j], label=0)
-                dogscats_set.append(sample)
+                dogs_cats_set.append(sample)
 
             if (labels[j] == dog_label):
                 sample = Sample(idx=j, data=data[j], label=1)
-                dogscats_set.append(sample)
+                dogs_cats_set.append(sample)
 
-        return dogscats_set
+        return dogs_cats_set
 
     def __len__(self) -> int:
         '''
@@ -83,15 +86,15 @@ class PetsDataset(ClassificationDataset):
         Returns the number of classes.
         '''
 
-        pass
+        return self._class_number
 
 class PetsDatasetTraining(PetsDataset):
     '''
     Training dataset of cat and dog images from CIFAR-10 (class 0: cat, class 1: dog).
     '''
 
-    def __init__(self, fdir: str, subset: Subset):
-        super(PetsDatasetTraining, self).__init__(os.path.dirname(fdir), subset)
+    def __init__(self, fdir: str):
+        super(PetsDatasetTraining, self).__init__(os.path.dirname(fdir))
         self.training_set_file_number = 4
 
         if os.path.exists(fdir) == False:
@@ -117,17 +120,20 @@ class PetsDatasetValidation(PetsDataset):
     Training dataset of cat and dog images from CIFAR-10 (class 0: cat, class 1: dog).
     '''
 
-    def __init__(self, fdir: str, subset: Subset):
-        super(PetsDatasetValidation, self).__init__(os.path.dirname(fdir), subset)
+    def __init__(self, fdir: str):
+        super(PetsDatasetValidation, self).__init__(os.path.dirname(fdir))
 
         if os.path.exists(fdir) == False:
             raise ValueError("Directory: ", fdir, " does not exist")
         else:
+            data_files = []
+            for (_, _, file_names) in os.walk(fdir):
+                data_files.extend(file_names)
+                break
 
-            validation_data = None
-            validation_labels = []
-
-            data_dic = unpickle(fdir + "/data_batch_5")
+            data_dic = {}
+            for file in data_files:
+                data_dic.update(unpickle(os.path.join(fdir, file)))
             validation_data = data_dic['data']
             validation_labels = data_dic['labels']
 
@@ -138,8 +144,8 @@ class PetsDatasetTest(PetsDataset):
     Training dataset of cat and dog images from CIFAR-10 (class 0: cat, class 1: dog).
     '''
 
-    def __init__(self, fdir: str, subset: Subset):
-        super(PetsDatasetTest, self).__init__(os.path.dirname(fdir), subset)
+    def __init__(self, fdir: str):
+        super(PetsDatasetTest, self).__init__(os.path.dirname(fdir))
 
         if os.path.exists(fdir) == False:
             raise ValueError("Directory: ", fdir, " does not exist")
