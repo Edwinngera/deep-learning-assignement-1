@@ -1,2 +1,5 @@
+.idea/*
 Pets_Net/*
 data/*
+my_little*
+*pycache*
