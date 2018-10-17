@@ -39,6 +39,7 @@ def adjust_data(data, labels):
     labels = np.array(labels)
     return data, labels
 
+
 class PetsDataset(ClassificationDataset):
     """
     Dataset of cat and dog images from CIFAR-10 (class 0: cat, class 1: dog).
@@ -73,7 +74,7 @@ class PetsDataset(ClassificationDataset):
         self._chosen_classes = ['cat', 'dog']
 
         if not os.path.exists(fdir):
-            raise ValueError("Directory: ", fdir, " does not exist")
+            raise ValueError("Directory: " + fdir + " does not exist")
         else:
             if self._subset_type == Subset.TRAINING:
                 self._load_data_set(self._training_files)
@@ -85,7 +86,7 @@ class PetsDataset(ClassificationDataset):
                 self._load_data_set(self._test_files)
 
             else:
-                raise ValueError("Unknown subset: ", self._subset_type)
+                raise ValueError("Unknown subset: " + self._subset_type)
 
     def _load_data_set(self, file_names):
         """
@@ -113,7 +114,7 @@ class PetsDataset(ClassificationDataset):
         """
 
         if not os.path.exists(self._label_names_file):
-            raise ValueError("File consisting metadata: ", self._label_names_file, " does not exist")
+            raise ValueError("File consisting metadata: " + self._label_names_file + " does not exist")
 
         label_names_dic = unpickle(self._label_names_file)
         label_names = label_names_dic['label_names']
