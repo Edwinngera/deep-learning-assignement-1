@@ -1,4 +1,5 @@
-from dlvc.pets import PetsDatasetTraining, PetsDatasetValidation, PetsDatasetTest
+from dlvc.datasets.pets import PetsDataset
+from dlvc.dataset import Subset
 
 import os
 import cv2 as cv
@@ -9,9 +10,9 @@ import unittest
 class TestPets(unittest.TestCase):
 
     def test_correctness_of_data(self):
-        training_set = PetsDatasetTraining(os.path.join(os.getcwd(), "data/training"))
-        validation_set = PetsDatasetValidation(os.path.join(os.getcwd(), "data/validation"))
-        test_set = PetsDatasetTest(os.path.join(os.getcwd(), "data/test"))
+        training_set = PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TRAINING)
+        validation_set = PetsDataset(os.path.join(os.getcwd(), "data"), Subset.VALIDATION)
+        test_set = PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TEST)
 
         # Test number of samples in the individual data sets:
         self.assertEqual(len(training_set), 7959)
