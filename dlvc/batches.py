@@ -38,25 +38,42 @@ class BatchGenerator:
         Raises ValueError on invalid argument values, such as if num is > len(dataset).
         '''
 
-        # TODO implement
+        self._batches = []
 
-        pass
+        dataset_size = len(dataset)
+        data = []
+        label = []
+        idx = []
+
+        for i in dataset:
+            data.append(i.data)
+            label.append(i.label)
+            idx.append(i.idx)
+
+        for i in range(0, dataset_size, num):
+            if i+num <= dataset_size:
+                batch_offset = i+num
+            else:
+                batch_offset = dataset_size-i
+            batch = Batch()
+            batch.data = data[i:batch_offset]
+            batch.label = label[i:batch_offset]
+            batch.idx = idx[i:batch_offset]
+            self._batches.append(batch)
+
 
     def __len__(self) -> int:
         '''
         Returns the number of batches generated per iteration.
         '''
 
-        # TODO implement
+        return len(self._batches)
 
-        pass
-
-    def __iter__(self) -> typing.Iterable[Batch]
+    def __iter__(self) -> typing.Iterable[Batch]:
         '''
         Iterate over the wrapped dataset, returning the data as batches.
         '''
 
-        # TODO implement
-        # The "yield" keyword makes this easier
+        for i in self._batches:
+            yield i
 
-        pass
