@@ -43,16 +43,17 @@ class BatchGenerator:
         dataset_size = len(dataset)
 
         if not isinstance(dataset, Dataset):
-            raise TypeError
+            raise TypeError("The argument dataset is not instance of class Dataset.")
 
         if not np.issubdtype(type(num), np.integer):
-            raise TypeError
+            raise TypeError("The batch size is not integer type, but: ", type(num), ".")
 
         if num > dataset_size:
-            raise ValueError
+            raise ValueError("The number os samples per batch should be smaller then dataset size,"
+                             "database size is: ", dataset_size, " batch size is: ", num, ".")
 
         if num < 1:
-            raise ValueError
+            raise ValueError("The number os samples per batch should be grater then 1, it is: ", num, ".")
 
         data = []
         label = []

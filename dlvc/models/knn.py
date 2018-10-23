@@ -1,80 +1,73 @@
-
 from ..model import Model
-from operator import itemgetter
-import numpy as np
-from batches import Batch, BatchGenerator
-from ..dlvc.datasets.pets import PetsDataset
-import os
-from dlvc.dataset import Subset
-import ops
+from ..batches import Batch, BatchGenerator
+from ..datasets.pets import PetsDataset
+from ..dataset import Subset
+from .. import ops
 
+from operator import itemgetter
+
+import numpy as np
+import os
 
 class KnnClassifier(Model):
-    '''
+    """
     k nearest neighbors classifier.
     Returns softmax class scores (see lecture slides).
-    '''
+    """
 
     def __init__(self, k: int, input_dim: int, num_classes: int):
-
-
-        training_batch_gen=BatchGenerator(PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TRAINING), len(PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TRAINING)), False, ops.op)
-        training_batch = training_batch_gen.__iter__()
-        self.training_batch = Batch()
-        self.training_batch.data = training_batch(0)
-        self.training_batch.label = training_batch(1)
-        self.training_batch.idx = training_batch(2)
-
-        validation_batch_gen = BatchGenerator(PetsDataset(os.path.join(os.getcwd(), "data"), Subset.VALIDATION), len(PetsDataset(os.path.join(os.getcwd(), "data"), Subset.VALIDATION)), False, ops.op)
-        validation_batch = validation_batch_gen.__iter__()
-        self.validation_batch = Batch()
-        self.validation_batch.data = validation_batch(0)
-        self.validation_batch.label = validation_batch(1)
-        self.validation_batch.idx = validation_batch(2)
-
-        test_batch_gen = BatchGenerator(PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TEST),len(PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TEST)), False, ops.op)
-        test_batch = test_batch_gen.__iter__()
-        self.test_batch = Batch()
-        self.test_batch.data = test_batch(0)
-        self.test_batch.label = test_batch(1)
-        self.test_batch.idx = test_batch(2)
-
-        if k>=1:
-            self.k_n_n = k
-        else:
-            raise ValueError("k nearest neighbors must be >= 0")
-
-        if input_dim > 0:
-            self.input_dimension= input_dim
-        else:
-            raise ValueError("input dimensions must be > 0")
-
-        if num_classes > 1:
-            self.num_class = num_classes
-        else:
-            raise ValueError("number of classes must be > 1")
-        '''
+        """
         Ctor.
         k is the number of nearest neighbors to consult (>= 1).
         input_dim is the length of input vectors (> 0).
         num_classes is the number of classes (> 1).
-        '''
+        """
+
+        if not k >= 1:
+            raise ValueError("The number of k-nearest neighbors must be at least 1, it is: ", k, ".")
+
+        if not input_dim > 0:
+            raise ValueError("The length of input vector must be greater then 0, it is: ", input_dim, ".")
+
+        if not num_classes > 1:
+            raise ValueError("The number of classes to classify must be must be at least 1, it is: ", num_classes, ".")
+
+        if not np.issubdtype(type(k), np.integer):
+            raise TypeError("The number of k-nearest neighbors must be at least 1, it is: ", k, ".")
+
+        if not np.issubdtype(type(input_dim), np.integer):
+            raise TypeError("The length of input vector must be greater then 0, it is: ", input_dim, ".")
+
+        if not np.issubdtype(type(num_classes), np.integer):
+            raise TypeError("The number of classes to classify must be must be at least 1, it is: ", num_classes, ".")
+
+        self.k_n_n = k
+        self.input_dim = input_dim
+        self.num_classes = num_classes
 
     def input_shape(self) -> tuple:
-
-        '''
+        """
         Returns the expected input shape as a tuple, which is (0, input_dim).
-        '''
-        return (0, self.input_dimension)
+        """
+        return 0, self.input_dim
 
     def output_shape(self) -> tuple:
-
-        '''
+        """
         Returns the shape of predictions for a single sample as a tuple, which is (num_classes,).
-        '''
-        return (self.num_class,)
+        """
+        return self.num_classes,
 
     def train(self, data: np.ndarray, labels: np.ndarray) -> float:
+        """
+        Train the model on batch of data.
+        As training simply entails storing the data, the model is reset each time this method is called.
+        Data are the input data, with shape (m, input_dim) and type np.float32 (m is arbitrary).
+        Labels has shape (m,) and integral values between 0 and num_classes - 1.
+        Returns 0 as there is no training loss to compute.
+        Raises TypeError on invalid argument types.
+        Raises ValueError on invalid argument values.
+        Raises RuntimeError on other errors.
+        """
 
         training_loss = 0
 
@@ -90,7 +83,7 @@ class KnnClassifier(Model):
 
             for j in range(0, len(data)):
                 dist = 0
-                for k in range(0, len(self.input_dimension)):
+                for k in range(0, len(self.input_dim)):
                     dist = dist + (data[i][k]-data[j+1][k])
                 distance.append((dist, labels[j+1]))
 
@@ -104,21 +97,20 @@ class KnnClassifier(Model):
 
         return training_loss
 
-        '''
-        Train the model on batch of data.
-        As training simply entails storing the data, the model is reset each time this method is called.
-        Data are the input data, with shape (m, input_dim) and type np.float32 (m is arbitrary).
-        Labels has shape (m,) and integral values between 0 and num_classes - 1.
-        Returns 0 as there is no training loss to compute.
+
+
+    def predict(self, data: np.ndarray) -> np.ndarray:
+        """
+        Predict softmax class scores from input data.
+        Data are the input data, with a shape compatible with input_shape().
+        The label array has shape (n, output_shape()) with n being the number of input samples.
         Raises TypeError on invalid argument types.
         Raises ValueError on invalid argument values.
         Raises RuntimeError on other errors.
-        '''
-
-    def predict(self, data: np.ndarray) -> np.ndarray:
+        """
 
         def softmax(w, t=1.0):
-            '''Calculate the softmax of a list of numbers w.
+            """Calculate the softmax of a list of numbers w.
 
             Parameters
             ----------
@@ -139,18 +131,11 @@ class KnnClassifier(Model):
             array([  9.99981542e-01,   1.84578933e-05])
             >>> softmax([0, 10])
             array([  4.53978687e-05,   9.99954602e-01])
-            '''
+            """
 
 
             e = np.exp(np.array(w) / t)
             sm = e / np.sum(e)
             return sm
-        '''
-        Predict softmax class scores from input data.
-        Data are the input data, with a shape compatible with input_shape().
-        The label array has shape (n, output_shape()) with n being the number of input samples.
-        Raises TypeError on invalid argument types.
-        Raises ValueError on invalid argument values.
-        Raises RuntimeError on other errors.
-        '''
+
 
