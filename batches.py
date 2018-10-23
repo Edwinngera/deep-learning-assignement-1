@@ -1,7 +1,12 @@
 
-from .dataset import Dataset
-
+from dlvc.dataset import Dataset
+from dlvc.datasets.pets import PetsDataset
+import random
 import types
+import numpy as np
+from collections import namedtuple
+
+Batch = namedtuple('Batch', ['dat', 'labels', 'idx'])
 
 class Batch:
     '''
@@ -27,7 +32,38 @@ class BatchGenerator:
     '''
 
     def __init__(self, dataset: Dataset, num: int, shuffle: bool, op: types.FunctionType = None):
+
+        self.batches = []
+
+        data = []
+        label = []
+        indices = []
+
+
+        if shuffle:
+            data = random.shuffle(dataset)
+            for i in range(0, dataset.__len__()):
+                indices.append(data.__getitem__(i)[0])
+                data.append(op(data.__getitem__(i)[1]))
+                label.append(data.__getitem__(i)[2])
+
+            for i in range(0, dataset.__len__(), num):
+                batch = Batch(dat=data[i:i + num][1], labels=label[i:i + num][2], idx=indices[i:i + num][0])
+                self.batches.append(batch)
+
+
+        else:
+            for i in range(0, dataset.__len__()):
+                indices.append(dataset.__getitem__(i)[0])
+                data.append(op(dataset.__getitem__(i)[1]))
+                label.append(dataset.__getitem__(i)[2])
+
+            for i in range(0, self.dataset.__len__(), num):
+                batch = Batch(dat=data[i:i + num][1], labels=label[i:i + num][2], idx=indices[i:i + num][0])
+                self.batches.append(batch)
+
         '''
+        ???? shouldn`t this have PetsDataset instead of Dataset as argument???
         Ctor.
         Dataset is the dataset to iterate over.
         num is the number of samples per batch. the number in the last batch might be smaller than that.
@@ -46,7 +82,7 @@ class BatchGenerator:
         Returns the number of batches generated per iteration.
         '''
 
-        # TODO implement
+        return len(self.batches)
 
         pass
 
@@ -54,8 +90,9 @@ class BatchGenerator:
         '''
         Iterate over the wrapped dataset, returning the data as batches.
         '''
+        for i in range(0, self.batches.__len__()):
+            yield self.batches[i]
 
-        # TODO implement
         # The "yield" keyword makes this easier
 
         pass
