@@ -46,13 +46,35 @@ class TestKnn(unittest.TestCase):
             ops.type_cast(np.float32)
         ])
         dataset = PetsDataset(os.path.join(os.getcwd(), self._data_dir), Subset.TRAINING)
-        batch_set = BatchGenerator(dataset, 7959, True, op)
+        batch_gen = BatchGenerator(dataset, 7959, False, op)
+        batch_iter = iter(batch_gen)
+        iter_result = next(batch_iter)
         classifier = KnnClassifier(10, 3072, 2)
-        classifier.train(batch_set._batches[0].data, batch_set._batches[0].label)
-
+        classifier.train(iter_result.data, iter_result.label)
 
     def test_train_wrong_type_of_data(self):
-        pass
+        op = ops.chain([
+            ops.vectorize(),
+            ops.type_cast(np.float32)
+        ])
+        dataset = PetsDataset(os.path.join(os.getcwd(), self._data_dir), Subset.TRAINING)
+        batch_gen = BatchGenerator(dataset, 7959, False, op)
+        batch_iter = iter(batch_gen)
+        iter_result = next(batch_iter)
+        classifier = KnnClassifier(10, 3072, 2)
+        self.assertRaises(TypeError, classifier.train, [1, 2, 3], iter_result.label)
+
+    def test_train_wrong_type_of_labels(self):
+        op = ops.chain([
+            ops.vectorize(),
+            ops.type_cast(np.float32)
+        ])
+        dataset = PetsDataset(os.path.join(os.getcwd(), self._data_dir), Subset.TRAINING)
+        batch_gen = BatchGenerator(dataset, 7959, False, op)
+        batch_iter = iter(batch_gen)
+        iter_result = next(batch_iter)
+        classifier = KnnClassifier(10, 3072, 2)
+        self.assertRaises(TypeError, classifier.train, iter_result.data, [1, 2, 3])
 
 if __name__ == "__main__":
     unittest.main()

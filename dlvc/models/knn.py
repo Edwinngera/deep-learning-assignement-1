@@ -74,11 +74,13 @@ class KnnClassifier(Model):
         Raises RuntimeError on other errors.
         """
 
-        if not np.issubdtype(type(data), np.ndarray):
+        if not isinstance(data, np.ndarray):
             raise TypeError("The batch size is not np.ndarray type, but: " + str(type(data)) + ".")
 
-        if not np.issubdtype(type(labels), np.ndarray):
+        if not isinstance(labels, np.ndarray):
             raise TypeError("The batch size is not np.ndarray type, but: " + str(type(labels)) + ".")
+
+        #TODO Other conditions for data
 
         self._trained_data = data
         self._trained_labels = labels

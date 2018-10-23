@@ -55,21 +55,32 @@ class BatchGenerator:
         if num < 1:
             raise ValueError("The number os samples per batch should be grater then 1, it is: " + str(num) + ".")
 
-        data = []
-        label = []
-        idx = []
-
-        if not shuffle:
+        if shuffle:
             dataset = list(dataset)
             random.shuffle(dataset)
 
-        for i in dataset:
-            label.append(i.label)
-            idx.append(i.idx)
+        label = np.empty((dataset_size,), int)
+        label[0] = dataset[0].label
+        idx = np.empty((dataset_size,), int)
+        idx[0] = dataset[0].idx
+
+        if not op:
+            data_shape = (dataset_size, ) + dataset[0].data.shape
+            data = np.empty(data_shape)
+            data[0] = dataset[0].data
+        else:
+            tmp_data = op(dataset[0].data)
+            data_shape = (dataset_size,) + tmp_data.shape
+            data = np.empty(data_shape, tmp_data.dtype)
+            data[0] = tmp_data
+
+        for i in range(1, dataset_size):
+            label[i] = dataset[i].label
+            idx[i] = dataset[i].idx
             if not op:
-                data.append(i.data)
+                data[i] = dataset[i].data
             else:
-                data.append(op(i.data))
+                data[i] = op(dataset[i].data)
 
         for i in range(0, dataset_size, num):
             if i+num <= dataset_size:
