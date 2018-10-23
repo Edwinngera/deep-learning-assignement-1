@@ -2,8 +2,9 @@ from dlvc.batches import BatchGenerator
 
 from dlvc.datasets.pets import PetsDataset
 from dlvc.dataset import Subset
-from dlvc.ops import Op
+import dlvc.ops as ops
 
+import numpy as np
 import os
 
 import unittest
@@ -32,17 +33,17 @@ class TestBatchGenerator(unittest.TestCase):
 
     def test_data_transformation(self):
         pass
-        # op = ops.chain([ ops.vectorize(),
-        #     ops.type_cast(np.float32)
-        # ])
-        # dataset = PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TRAINING, op)
-        # batch_set = BatchGenerator(dataset, 100, False)
-        # self.assertEqual(len(batch_set), 80)
-        # iter_gen = iter(batch_set)
-        # iter_result = next(iter_gen)
-        # self.assertFalse(iter_result.idx[0] == 9)
-        # iter_result = next(iter_gen)
-        # self.assertFalse(iter_result.idx[0] == 607)
+        op = ops.chain([
+            ops.vectorize(),
+            ops.type_cast(np.float32)
+        ])
+        dataset = PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TRAINING)
+        batch_set = BatchGenerator(dataset, 100, False, op)
+        self.assertEqual(len(batch_set), 80)
+        iter_gen = iter(batch_set)
+        iter_result = next(iter_gen)
+        self.assertEqual(iter_result.data[0].shape, (3072,))
+        self.assertTrue(np.issubdtype(iter_result.data[0].dtype, np.float32))
 
     def test_type_error_exception(self):
         self.assertRaises(TypeError, BatchGenerator, [1, 2, 3], 100, True)
