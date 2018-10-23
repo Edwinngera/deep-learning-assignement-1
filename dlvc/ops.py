@@ -34,7 +34,7 @@ def vectorize() -> Op:
     Vectorize numpy arrays via "numpy.ravel()".
     '''
 
-    def op(sample: np.ndarray) -> np.ndarray:
-        return sample.ravel()
+    # def op(sample: np.ndarray) -> np.ndarray:
+    #     return sample.ravel()
 
-    return op
+    return np.ravel
