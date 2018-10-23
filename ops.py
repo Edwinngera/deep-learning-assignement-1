@@ -15,16 +15,18 @@ def chain(ops: list) -> types.FunctionType:
 
     return op
 
-def type_cast(dtype: np.dtype) -> types.FunctionType:
+def type_cast(dtype : np.dtype) -> types.FunctionType:
     '''
     Cast numpy arrays to the given type.
     '''
+    def cast(sample = [], dtyp=dtype):
+        return np.array(sample, dtyp)
 
-    # TODO implement (see above for guidance).
+    return cast
 
 def vectorize() -> types.FunctionType:
     '''
     Vectorize numpy arrays via "numpy.ravel()".
     '''
+    return np.ravel
 
-    # TODO implement (see above for guidance).
