@@ -8,11 +8,17 @@ import numpy as np
 import unittest
 
 class TestPets(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super(TestPets, self).__init__(*args, **kwargs)
+        if os.path.basename(os.getcwd()) == "test":
+            self._data_dir = "../data"
+        else:
+            self._data_dir = "data"
 
     def test_correctness_of_data(self):
-        training_set = PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TRAINING)
-        validation_set = PetsDataset(os.path.join(os.getcwd(), "data"), Subset.VALIDATION)
-        test_set = PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TEST)
+        training_set = PetsDataset(os.path.join(os.getcwd(), self._data_dir), Subset.TRAINING)
+        validation_set = PetsDataset(os.path.join(os.getcwd(), self._data_dir), Subset.VALIDATION)
+        test_set = PetsDataset(os.path.join(os.getcwd(), self._data_dir), Subset.TEST)
 
         # Test number of samples in the individual data sets:
         self.assertEqual(len(training_set), 7959)

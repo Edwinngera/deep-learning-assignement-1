@@ -24,26 +24,31 @@ class KnnClassifier(Model):
         """
 
         if not k >= 1:
-            raise ValueError("The number of k-nearest neighbors must be at least 1, it is: ", k, ".")
+            raise ValueError("The number of k-nearest neighbors must be at least 1, it is: " + str(k) + ".")
 
         if not input_dim > 0:
-            raise ValueError("The length of input vector must be greater then 0, it is: ", input_dim, ".")
+            raise ValueError("The length of input vector must be greater then 0, it is: " + str(input_dim) + ".")
 
         if not num_classes > 1:
-            raise ValueError("The number of classes to classify must be must be at least 1, it is: ", num_classes, ".")
+            raise ValueError("The number of classes to classify must be must be at least 1, it is: " + str(num_classes)
+                             + ".")
 
         if not np.issubdtype(type(k), np.integer):
-            raise TypeError("The number of k-nearest neighbors must be at least 1, it is: ", k, ".")
+            raise TypeError("The number of k-nearest neighbors must be integer number, it is: " + str(type(k)) + ".")
 
         if not np.issubdtype(type(input_dim), np.integer):
-            raise TypeError("The length of input vector must be greater then 0, it is: ", input_dim, ".")
+            raise TypeError("The length of input vector must be integer number, it is: " + str(type(input_dim)) + ".")
 
         if not np.issubdtype(type(num_classes), np.integer):
-            raise TypeError("The number of classes to classify must be must be at least 1, it is: ", num_classes, ".")
+            raise TypeError("The number of classes to classify must be must be integer number, it is: " +
+                            str(type(num_classes)) + ".")
 
         self.k_n_n = k
         self.input_dim = input_dim
         self.num_classes = num_classes
+
+        self._trained_data = None
+        self._trained_labels = None
 
     def input_shape(self) -> tuple:
         """
@@ -69,35 +74,16 @@ class KnnClassifier(Model):
         Raises RuntimeError on other errors.
         """
 
-        training_loss = 0
+        if not np.issubdtype(type(data), np.ndarray):
+            raise TypeError("The batch size is not np.ndarray type, but: " + str(type(data)) + ".")
 
-#############################################################################################
+        if not np.issubdtype(type(labels), np.ndarray):
+            raise TypeError("The batch size is not np.ndarray type, but: " + str(type(labels)) + ".")
 
-        knn_all_img = []
+        self._trained_data = data
+        self._trained_labels = labels
 
-        for i in range(0, len(data)):
-
-            distance = []
-            nearest_neighbors = []
-            k_nearest_neighbors = []
-
-            for j in range(0, len(data)):
-                dist = 0
-                for k in range(0, len(self.input_dim)):
-                    dist = dist + (data[i][k]-data[j+1][k])
-                distance.append((dist, labels[j+1]))
-
-            nearest_neighbors = sorted(distance, key=itemgetter(0))
-            k_nearest_neighbors = nearest_neighbors[0:self.k_n_n](1)
-
-
-            knn_all_img.append((k_nearest_neighbors.count(0),k_nearest_neighbors.count(1)))
-
-###############################################################################################
-
-        return training_loss
-
-
+        return 0.0
 
     def predict(self, data: np.ndarray) -> np.ndarray:
         """

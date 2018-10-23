@@ -1,8 +1,22 @@
 from dlvc.models.knn import KnnClassifier
+from dlvc.batches import BatchGenerator
+from dlvc.datasets.pets import PetsDataset
+from dlvc.dataset import Subset
+import dlvc.ops as ops
+
+import numpy as np
+import os
 
 import unittest
 
 class TestKnn(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super(TestKnn, self).__init__(*args, **kwargs)
+        if os.path.basename(os.getcwd()) == "test":
+            self._data_dir = "../data"
+        else:
+            self._data_dir = "data"
+
     def test_creation_with_proper_data(self):
         classifier = KnnClassifier(10, 3072, 2)
         self.assertEqual(classifier.input_shape(), (0, 3072))
@@ -25,6 +39,20 @@ class TestKnn(unittest.TestCase):
 
     def test_wrong_type_of_num_classes(self):
         self.assertRaises(TypeError, KnnClassifier, 10, 3072, 2.5)
+
+    def test_train_with_proper_data(self):
+        op = ops.chain([
+            ops.vectorize(),
+            ops.type_cast(np.float32)
+        ])
+        dataset = PetsDataset(os.path.join(os.getcwd(), self._data_dir), Subset.TRAINING)
+        batch_set = BatchGenerator(dataset, 7959, True, op)
+        classifier = KnnClassifier(10, 3072, 2)
+        classifier.train(batch_set._batches[0].data, batch_set._batches[0].label)
+
+
+    def test_train_wrong_type_of_data(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()

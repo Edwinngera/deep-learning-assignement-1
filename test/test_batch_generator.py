@@ -10,9 +10,17 @@ import os
 import unittest
 
 
+
 class TestBatchGenerator(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super(TestBatchGenerator, self).__init__(*args, **kwargs)
+        if os.path.basename(os.getcwd()) == "test":
+            self._data_dir = "../data"
+        else:
+            self._data_dir = "data"
+
     def test_create_batch(self):
-        dataset = PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TRAINING)
+        dataset = PetsDataset(os.path.join(os.getcwd(), self._data_dir), Subset.TRAINING)
         batch_set = BatchGenerator(dataset, 100, True)
         self.assertEqual(len(batch_set), 80)
         iter_gen = iter(batch_set)
@@ -22,7 +30,7 @@ class TestBatchGenerator(unittest.TestCase):
         self.assertEqual(iter_result.idx[0], 607)
 
     def test_shuffle(self):
-        dataset = PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TRAINING)
+        dataset = PetsDataset(os.path.join(os.getcwd(), self._data_dir), Subset.TRAINING)
         batch_set = BatchGenerator(dataset, 100, False)
         self.assertEqual(len(batch_set), 80)
         iter_gen = iter(batch_set)
@@ -32,12 +40,11 @@ class TestBatchGenerator(unittest.TestCase):
         self.assertFalse(iter_result.idx[0] == 607)
 
     def test_data_transformation(self):
-        pass
         op = ops.chain([
             ops.vectorize(),
             ops.type_cast(np.float32)
         ])
-        dataset = PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TRAINING)
+        dataset = PetsDataset(os.path.join(os.getcwd(), self._data_dir), Subset.TRAINING)
         batch_set = BatchGenerator(dataset, 100, False, op)
         self.assertEqual(len(batch_set), 80)
         iter_gen = iter(batch_set)
@@ -49,15 +56,15 @@ class TestBatchGenerator(unittest.TestCase):
         self.assertRaises(TypeError, BatchGenerator, [1, 2, 3], 100, True)
 
     def test_batch_size_is_not_integer_exception(self):
-        dataset = PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TEST)
+        dataset = PetsDataset(os.path.join(os.getcwd(), self._data_dir), Subset.TEST)
         self.assertRaises(TypeError, BatchGenerator, dataset, 50.5, True)
 
     def test_bigger_batch_then_dataset_exception(self):
-        dataset = PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TEST)
+        dataset = PetsDataset(os.path.join(os.getcwd(), self._data_dir), Subset.TEST)
         self.assertRaises(ValueError, BatchGenerator, dataset, 5000, True)
 
     def test_negative_batch_size_exception(self):
-        dataset = PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TEST)
+        dataset = PetsDataset(os.path.join(os.getcwd(), self._data_dir), Subset.TEST)
         self.assertRaises(ValueError, BatchGenerator, dataset, -1, True)
 
 
