@@ -1,7 +1,8 @@
-from dlvc.batches import Batch, BatchGenerator
+from dlvc.batches import BatchGenerator
 
 from dlvc.datasets.pets import PetsDataset
 from dlvc.dataset import Subset
+from dlvc.ops import Op
 
 import os
 
@@ -28,6 +29,20 @@ class TestBatchGenerator(unittest.TestCase):
         self.assertFalse(iter_result.idx[0] == 9)
         iter_result = next(iter_gen)
         self.assertFalse(iter_result.idx[0] == 607)
+
+    def test_data_transformation(self):
+        pass
+        # op = ops.chain([ ops.vectorize(),
+        #     ops.type_cast(np.float32)
+        # ])
+        # dataset = PetsDataset(os.path.join(os.getcwd(), "data"), Subset.TRAINING, op)
+        # batch_set = BatchGenerator(dataset, 100, False)
+        # self.assertEqual(len(batch_set), 80)
+        # iter_gen = iter(batch_set)
+        # iter_result = next(iter_gen)
+        # self.assertFalse(iter_result.idx[0] == 9)
+        # iter_result = next(iter_gen)
+        # self.assertFalse(iter_result.idx[0] == 607)
 
     def test_type_error_exception(self):
         self.assertRaises(TypeError, BatchGenerator, [1, 2, 3], 100, True)

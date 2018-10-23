@@ -1,8 +1,9 @@
-
 from .dataset import Dataset
 from .ops import Op
 
 import typing
+import numpy as np
+import random
 
 class Batch:
     '''
@@ -39,16 +40,35 @@ class BatchGenerator:
         '''
 
         self._batches = []
-
         dataset_size = len(dataset)
+
+        if not isinstance(dataset, Dataset):
+            raise TypeError
+
+        if not np.issubdtype(type(num), np.integer):
+            raise TypeError
+
+        if num > dataset_size:
+            raise ValueError
+
+        if num < 1:
+            raise ValueError
+
         data = []
         label = []
         idx = []
 
+        if not shuffle:
+            dataset = list(dataset)
+            random.shuffle(dataset)
+
         for i in dataset:
-            data.append(i.data)
             label.append(i.label)
             idx.append(i.idx)
+            if not op:
+                data.append(i.data)
+            else:
+                data.append(op(i.data))
 
         for i in range(0, dataset_size, num):
             if i+num <= dataset_size:

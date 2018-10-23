@@ -24,15 +24,17 @@ def type_cast(dtype: np.dtype) -> Op:
     Cast numpy arrays to the given type.
     '''
 
-    # TODO implement (see above for guidance).
+    def op(sample: np.ndarray) -> np.ndarray:
+        return sample.astype(dtype)
 
-    pass
+    return op
 
 def vectorize() -> Op:
     '''
     Vectorize numpy arrays via "numpy.ravel()".
     '''
 
-    # TODO implement (see above for guidance).
+    def op(sample: np.ndarray) -> np.ndarray:
+        return sample.ravel()
 
-    pass
+    return op
