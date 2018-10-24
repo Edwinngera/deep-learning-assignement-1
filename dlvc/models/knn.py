@@ -9,8 +9,37 @@ from operator import itemgetter
 import numpy as np
 import os
 
-class KnnClassifier(Model):
+
+def softmax(w, t=1.0):
+    """Calculate the softmax of a list of numbers w.
+
+    Parameters
+    ----------
+    w : list of numbers
+    t : float
+
+    Return
+    ------
+    a list of the same length as w of non-negative numbers
+
+    Examples
+    --------
+    >>> softmax([0.1, 0.2])
+    array([ 0.47502081,  0.52497919])
+    >>> softmax([-0.1, 0.2])
+    array([ 0.42555748,  0.57444252])
+    >>> softmax([0.9, -10])
+    array([  9.99981542e-01,   1.84578933e-05])
+    >>> softmax([0, 10])
+    array([  4.53978687e-05,   9.99954602e-01])
     """
+
+    e = np.exp(np.array(w) / t)
+    return e / np.sum(e)
+
+class KnnClassifier(Model):
+    """    return sm
+
     k nearest neighbors classifier.
     Returns softmax class scores (see lecture slides).
     """
@@ -96,34 +125,19 @@ class KnnClassifier(Model):
         Raises ValueError on invalid argument values.
         Raises RuntimeError on other errors.
         """
+        knn_all_img = []
+        distances = []
+        k_nearest_neighbors = []
 
-        def softmax(w, t=1.0):
-            """Calculate the softmax of a list of numbers w.
-
-            Parameters
-            ----------
-            w : list of numbers
-            t : float
-
-            Return
-            ------
-            a list of the same length as w of non-negative numbers
-
-            Examples
-            --------
-            >>> softmax([0.1, 0.2])
-            array([ 0.47502081,  0.52497919])
-            >>> softmax([-0.1, 0.2])
-            array([ 0.42555748,  0.57444252])
-            >>> softmax([0.9, -10])
-            array([  9.99981542e-01,   1.84578933e-05])
-            >>> softmax([0, 10])
-            array([  4.53978687e-05,   9.99954602e-01])
-            """
+        for _dat in data:
+            for i in range(0, len(self._trained_data)):
+                distances.append((np.linalg.norm(_dat - self._trained_data[i]), self._trained_labels[i]))
+            nearest_neighbors = sorted(distances, key=itemgetter(0))
+            for _, label in nearest_neighbors[:self.k_n_n]:
+                k_nearest_neighbors.append(label)
+            knn_all_img.append(softmax((k_nearest_neighbors.count(0), k_nearest_neighbors.count(1))))
 
 
-            e = np.exp(np.array(w) / t)
-            sm = e / np.sum(e)
-            return sm
+        return knn_all_img
 
 
