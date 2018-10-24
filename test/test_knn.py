@@ -10,7 +10,7 @@ import os
 import unittest
 
 class TestKnn(unittest.TestCase):
-    #some line
+    #some line changed
     def __init__(self, *args, **kwargs):
         super(TestKnn, self).__init__(*args, **kwargs)
         if os.path.basename(os.getcwd()) == "test":
