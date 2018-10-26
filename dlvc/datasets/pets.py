@@ -86,7 +86,7 @@ class PetsDataset(ClassificationDataset):
                 self._load_data_set(self._test_files)
 
             else:
-                raise ValueError("Unknown subset: " + self._subset_type)
+                raise ValueError("Unknown subset: " + str(self._subset_type))
 
     def _load_data_set(self, file_names):
         """

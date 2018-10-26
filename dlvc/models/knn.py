@@ -10,36 +10,20 @@ import numpy as np
 import os
 
 
-def softmax(w, t=1.0):
+def softmax(w: tuple, t=1.0) -> tuple:
     """Calculate the softmax of a list of numbers w.
-
-    Parameters
-    ----------
+    Parameters:
     w : list of numbers
     t : float
-
-    Return
-    ------
-    a list of the same length as w of non-negative numbers
-
-    Examples
-    --------
-    >>> softmax([0.1, 0.2])
-    array([ 0.47502081,  0.52497919])
-    >>> softmax([-0.1, 0.2])
-    array([ 0.42555748,  0.57444252])
-    >>> softmax([0.9, -10])
-    array([  9.99981542e-01,   1.84578933e-05])
-    >>> softmax([0, 10])
-    array([  4.53978687e-05,   9.99954602e-01])
+    Return: a list of the same length as w of non-negative numbers
     """
 
     e = np.exp(np.array(w) / t)
     return e / np.sum(e)
 
-class KnnClassifier(Model):
-    """    return sm
 
+class KnnClassifier(Model):
+    """
     k nearest neighbors classifier.
     Returns softmax class scores (see lecture slides).
     """
@@ -103,13 +87,12 @@ class KnnClassifier(Model):
         Raises RuntimeError on other errors.
         """
 
-        if not isinstance(data, np.ndarray):
-            raise TypeError("The batch size is not np.ndarray type, but: " + str(type(data)) + ".")
+        self.check_correctness_of_matrix_data(data)
+        self.check_correctness_of_labels(labels)
 
-        if not isinstance(labels, np.ndarray):
-            raise TypeError("The batch size is not np.ndarray type, but: " + str(type(labels)) + ".")
-
-        #TODO Other conditions for data
+        if not data.shape[0] == labels.shape[0]:
+            raise RuntimeError("The batch do not have equal number of observations and labels, "
+                               "observations number: " + str(data) + " labels number" + str(labels) + ".")
 
         self._trained_data = data
         self._trained_labels = labels
@@ -125,19 +108,39 @@ class KnnClassifier(Model):
         Raises ValueError on invalid argument values.
         Raises RuntimeError on other errors.
         """
-        knn_all_img = []
-        distances = []
-        k_nearest_neighbors = []
 
-        for _dat in data:
-            for i in range(0, len(self._trained_data)):
-                distances.append((np.linalg.norm(_dat - self._trained_data[i]), self._trained_labels[i]))
-            nearest_neighbors = sorted(distances, key=itemgetter(0))
-            for _, label in nearest_neighbors[:self.k_n_n]:
-                k_nearest_neighbors.append(label)
-            knn_all_img.append(softmax((k_nearest_neighbors.count(0), k_nearest_neighbors.count(1))))
+        self.check_correctness_of_matrix_data(data)
 
+        knn_all_img = np.empty((data.shape[0], self.num_classes))
+
+        for i, _dat in enumerate(data):
+            distances = [(np.linalg.norm(_dat - self._trained_data[i]),
+                          self._trained_labels[i]) for i in range(0, len(self._trained_data))]
+            distances = sorted(distances, key=itemgetter(0))
+            k_nearest_neighbors = tuple(label for _, label in distances[:self.k_n_n])
+            knn_count = tuple(k_nearest_neighbors.count(i) for i in range(0, self.num_classes))
+            knn_all_img[i] = softmax(knn_count)
 
         return knn_all_img
 
+    def check_correctness_of_matrix_data(self, data: np.ndarray):
 
+        if not isinstance(data, np.ndarray):
+            raise TypeError("The batch size is not np.ndarray type, but: " + str(type(data)) + ".")
+
+        if not np.issubdtype(data.dtype, np.float32):
+            raise TypeError("The data has not value type np.float32, data type is: " + str(data.dtype) + ".")
+
+        if not data.shape[1] == self.input_dim:
+            raise RuntimeError("Size of inputs vectors in not equal with value specified in the constructor of"
+                               "classifier: " + str(data.shape[1]) + " != " + str(self.input_dim) + ".")
+
+    def check_correctness_of_labels(self, labels: np.ndarray):
+        if not isinstance(labels, np.ndarray):
+            raise TypeError("The batch size is not np.ndarray type, but: " + str(type(labels)) + ".")
+
+        if not np.issubdtype(labels.dtype, np.integer):
+            raise TypeError("The labels has not value type integer, labels type is: " + str(labels.dtype) + ".")
+
+        if not (labels < self.num_classes).all():
+            raise ValueError("The labels contain unknown class.")
