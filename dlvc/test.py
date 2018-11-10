@@ -1,7 +1,3 @@
-
-from .model import Model
-from .batches import BatchGenerator
-
 import numpy as np
 
 from abc import ABCMeta, abstractmethod
@@ -64,17 +60,14 @@ class Accuracy(PerformanceMeasure):
         '''
         Ctor.
         '''
-
-        self.reset()
+        self.accuracy_value = 0.
 
     def reset(self):
         '''
         Resets the internal state.
         '''
 
-        # TODO implement
-
-        pass
+        self.accuracy_value = 0.
 
     def update(self, prediction: np.ndarray, target: np.ndarray):
         '''
@@ -84,19 +77,19 @@ class Accuracy(PerformanceMeasure):
         Raises ValueError if the data shape or values are unsupported.
         '''
 
-        # TODO implement
-
-        pass
+        true_predictions = 0
+        outcome = np.argmax(prediction, axis=1)
+        for oc, tr in zip(outcome, target):
+            if oc == tr:
+                true_predictions += 1
+        self.accuracy_value = true_predictions/len(prediction)
 
     def __str__(self):
         '''
         Return a string representation of the performance.
         '''
 
-        # TODO implement
-        # return something like "accuracy: 0.395"
-
-        pass
+        return str(self.accuracy_value)
 
     def __lt__(self, other) -> bool:
         '''
@@ -104,9 +97,13 @@ class Accuracy(PerformanceMeasure):
         Raises TypeError if the types of both measures differ.
         '''
 
-        # TODO implement
+        if not np.issubdtype(type(self.accuracy_value), np.floating) and np.issubdtype(type(other), np.floating):
+            raise TypeError("Accuracy values have different type. Left side type: " +
+                            str(type(self.accuracy_value)) + ", right side: " + str(type(self.accuracy_value)) + ".")
 
-        pass
+        if self.accuracy_value < other:
+            return True
+        return False
 
     def __gt__(self, other) -> bool:
         '''
@@ -114,9 +111,13 @@ class Accuracy(PerformanceMeasure):
         Raises TypeError if the types of both measures differ.
         '''
 
-        # TODO implement
+        if not np.issubdtype(type(self.accuracy_value), np.floating) and np.issubdtype(type(other), np.floating):
+            raise TypeError("Accuracy values have different type. Left side type: " +
+                            str(type(self.accuracy_value)) + ", right side: " + str(type(self.accuracy_value)) + ".")
 
-        pass
+        if self.accuracy_value > other:
+            return True
+        return False
 
     def accuracy(self) -> float:
         '''
@@ -124,7 +125,4 @@ class Accuracy(PerformanceMeasure):
         Returns 0 if no data is available (after resets).
         '''
 
-        # TODO implement
-        # on this basis implementing the other methods is easy (one line)
-
-        pass
+        return self.accuracy_value
