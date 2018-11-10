@@ -60,6 +60,8 @@ class Accuracy(PerformanceMeasure):
         '''
         Ctor.
         '''
+        self.prediction = None
+        self.target = None
         self.accuracy_value = 0.
 
     def reset(self):
@@ -67,6 +69,8 @@ class Accuracy(PerformanceMeasure):
         Resets the internal state.
         '''
 
+        self.prediction = None
+        self.target = None
         self.accuracy_value = 0.
 
     def update(self, prediction: np.ndarray, target: np.ndarray):
@@ -77,19 +81,21 @@ class Accuracy(PerformanceMeasure):
         Raises ValueError if the data shape or values are unsupported.
         '''
 
-        true_predictions = 0
-        outcome = np.argmax(prediction, axis=1)
-        for oc, tr in zip(outcome, target):
-            if oc == tr:
-                true_predictions += 1
-        self.accuracy_value = true_predictions/len(prediction)
+        if not (prediction <= 1).all() and (prediction >= 0).all():
+            raise ValueError("Prediction values must be between 0 and 1.")
+
+        if not (prediction.shape[0] == target.shape[0]):
+            raise ValueError("Prediction must have same number of values as target.")
+
+        self.prediction = prediction
+        self.target = target
 
     def __str__(self):
         '''
         Return a string representation of the performance.
         '''
 
-        return str(self.accuracy_value)
+        return 'accuracy: ' + str(self.accuracy_value)
 
     def __lt__(self, other) -> bool:
         '''
@@ -125,4 +131,10 @@ class Accuracy(PerformanceMeasure):
         Returns 0 if no data is available (after resets).
         '''
 
+        true_predictions = 0
+        outcome = np.argmax(self.prediction, axis=1)
+        for oc, tr in zip(outcome, self.target):
+            if oc == tr:
+                true_predictions += 1
+        self.accuracy_value = true_predictions/len(self.prediction)
         return self.accuracy_value
