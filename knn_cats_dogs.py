@@ -3,7 +3,7 @@ from dlvc.datasets.pets import PetsDataset
 from dlvc.batches import Batch, BatchGenerator
 import dlvc.ops as ops
 from dlvc.models.knn import KnnClassifier
-from dlvc.test import Accuracy
+from dlvc.test_daria import Accuracy
 
 import os
 import numpy as np
@@ -26,6 +26,9 @@ def grid_search_optimizer(train: Batch, validation: Batch,
         accuracy = Accuracy()
         knn_classifier.train(train.data, train.label)
         knn_results = knn_classifier.predict(validation.data)
+        accuracy.update(knn_results, validation.label)
+        str(accuracy)
+
         if accuracy > best_accuracy:
             best_accuracy = accuracy
             best_k = k

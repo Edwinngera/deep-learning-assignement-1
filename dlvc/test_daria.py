@@ -64,6 +64,7 @@ class Accuracy(PerformanceMeasure):
         '''
         Ctor.
         '''
+        self.accuracy = .0
 
         self.reset()
 
@@ -72,9 +73,7 @@ class Accuracy(PerformanceMeasure):
         Resets the internal state.
         '''
 
-        # TODO implement
-
-        pass
+        self.correctness_prediction = []
 
     def update(self, prediction: np.ndarray, target: np.ndarray):
         '''
@@ -84,19 +83,33 @@ class Accuracy(PerformanceMeasure):
         Raises ValueError if the data shape or values are unsupported.
         '''
 
-        # TODO implement
+        if not (target < 2).all():
+            raise ValueError("Targets contain unknown class.")
 
-        pass
+        if not (prediction <= 1 or prediction >= 0).all():
+            raise ValueError("Prediction values must be between 0 and 1.")
+
+        if not (prediction.shape[1] == 2):
+            raise ValueError("Predicted values must have tuples of shape (2).")
+
+        if not (prediction.shape[0] == target.shape[0]):
+            raise ValueError("Prediction must have same number of values as target.")
+
+        for i, _p in prediction:
+            label = max(_p)
+            if _p.index(label) == target[i]:
+                self.correctness_prediction.append(1)
+            else:
+                self.correctness_prediction.append(0)
 
     def __str__(self):
         '''
         Return a string representation of the performance.
         '''
 
-        # TODO implement
+        print ('accuracy: ' + str(self.accuracy))
         # return something like "accuracy: 0.395"
 
-        pass
 
     def __lt__(self, other) -> bool:
         '''
@@ -104,9 +117,13 @@ class Accuracy(PerformanceMeasure):
         Raises TypeError if the types of both measures differ.
         '''
 
-        # TODO implement
+        if not np.issubdtype(type(other), type(self.accuracy)):
+            raise TypeError("Both accuracies must be of same type.")
 
-        pass
+        if other > self.accuracy:
+            return True
+        else:
+            return False
 
     def __gt__(self, other) -> bool:
         '''
@@ -114,9 +131,13 @@ class Accuracy(PerformanceMeasure):
         Raises TypeError if the types of both measures differ.
         '''
 
-        # TODO implement
+        if not np.issubdtype(type(other), type(self.accuracy)):
+            raise TypeError("Both accuracies must be of same type.")
 
-        pass
+        if other < self.accuracy:
+            return True
+        else:
+            return False
 
     def accuracy(self) -> float:
         '''
@@ -124,7 +145,7 @@ class Accuracy(PerformanceMeasure):
         Returns 0 if no data is available (after resets).
         '''
 
-        # TODO implement
+        self.accuracy = self.correctness_prediction.count(1)/len(self.correctness_prediction)
         # on this basis implementing the other methods is easy (one line)
 
-        pass
+        return self.accuracy
