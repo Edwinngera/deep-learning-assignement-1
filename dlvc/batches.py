@@ -11,6 +11,7 @@ class Batch:
     '''
 
     def __init__(self):
+
         '''
         Ctor.
         '''
@@ -86,7 +87,7 @@ class BatchGenerator:
             if i+num <= dataset_size:
                 batch_offset = i+num
             else:
-                batch_offset = dataset_size-i
+                batch_offset = dataset_size
             batch = Batch()
             batch.data = data[i:batch_offset]
             batch.label = label[i:batch_offset]
