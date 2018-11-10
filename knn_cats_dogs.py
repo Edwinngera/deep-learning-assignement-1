@@ -45,20 +45,20 @@ def grid_search_optimizer(train: Batch, validation: Batch, test: Batch,
 if __name__ == "__main__":
     data_dir_path = os.path.join(os.getcwd(), "data")
     # train_batch_gen = load_dataset_into_batches(data_dir_path, Subset.TRAINING, 7959)
-    train_batch_gen = load_dataset_into_batches(data_dir_path, Subset.TRAINING, 500)
+    train_batch_gen = load_dataset_into_batches(data_dir_path, Subset.TRAINING, 4000)
     train_batch_iter = iter(train_batch_gen)
     train_batch = next(train_batch_iter)
 
     # validation_batch_gen = load_dataset_into_batches(data_dir_path, Subset.VALIDATION, 2041)
-    validation_batch_gen = load_dataset_into_batches(data_dir_path, Subset.VALIDATION, 100)
+    validation_batch_gen = load_dataset_into_batches(data_dir_path, Subset.VALIDATION, 800)
     validation_batch_iter = iter(validation_batch_gen)
     validation_batch = next(validation_batch_iter)
 
-    test_batch_gen = load_dataset_into_batches(data_dir_path, Subset.TEST, 2000)
-    test_batch_gen = load_dataset_into_batches(data_dir_path, Subset.TEST, 100)
+    # test_batch_gen = load_dataset_into_batches(data_dir_path, Subset.TEST, 2000)
+    test_batch_gen = load_dataset_into_batches(data_dir_path, Subset.TEST, 800)
     test_batch_iter = iter(test_batch_gen)
     test_batch = next(test_batch_iter)
 
-    scope = (11, 99, 3)
+    scope = (11, 100, 22)
     best_accuracy = grid_search_optimizer(train_batch, validation_batch, test_batch, scope, 3072, 2)
     print("Best accuracy in equal: " + str(best_accuracy[0]) + " for k equal:" + str(best_accuracy[1]) + ".")
