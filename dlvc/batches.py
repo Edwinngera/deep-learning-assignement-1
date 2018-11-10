@@ -94,7 +94,6 @@ class BatchGenerator:
             batch.idx = idx[i:batch_offset]
             self._batches.append(batch)
 
-
     def __len__(self) -> int:
         '''
         Returns the number of batches generated per iteration.
