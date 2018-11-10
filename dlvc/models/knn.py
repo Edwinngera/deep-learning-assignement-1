@@ -92,7 +92,7 @@ class KnnClassifier(Model):
 
         if not data.shape[0] == labels.shape[0]:
             raise RuntimeError("The batch do not have equal number of observations and labels, "
-                               "observations number: " + str(data) + " labels number" + str(labels) + ".")
+                               "observations number: " + str(len(data)) + " labels number" + str(len(labels)) + ".")
 
         self._trained_data = data
         self._trained_labels = labels

@@ -10,7 +10,6 @@ import os
 import unittest
 
 class TestKnn(unittest.TestCase):
-    #some line changed
     def __init__(self, *args, **kwargs):
         super(TestKnn, self).__init__(*args, **kwargs)
         if os.path.basename(os.getcwd()) == "test":
@@ -40,6 +39,21 @@ class TestKnn(unittest.TestCase):
 
     def test_wrong_type_of_num_classes(self):
         self.assertRaises(TypeError, KnnClassifier, 10, 3072, 2.5)
+
+    def test_correctness_of_data_for_train(self):
+        op = ops.chain([
+            ops.vectorize(),
+            ops.type_cast(np.float32)
+        ])
+        dataset = PetsDataset(os.path.join(os.getcwd(), self._data_dir), Subset.TRAINING)
+        one_batch_gen = BatchGenerator(dataset, 7959, False, op)
+        self.assertEqual(len(one_batch_gen), 1)
+        many_batch_gen = BatchGenerator(dataset, 500, False, op)
+        self.assertEqual(len(many_batch_gen), 16)
+        reference = [116., 125., 125., 91., 101.]
+        batch_iter = iter(many_batch_gen)
+        batch_iter = next(batch_iter)
+        [self.assertEqual(item, reference[i]) for i, item in enumerate(batch_iter.data[0][:5])]
 
     def test_train_with_proper_data(self):
         op = ops.chain([
