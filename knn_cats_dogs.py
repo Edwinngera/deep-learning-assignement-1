@@ -66,4 +66,4 @@ if __name__ == "__main__":
                                                                  scope, 3072, 2)
     for accuracy, k in search_result:
         print("Accuracy: " + str(accuracy) + " k: " + str(k) + ".")
-    print("Best accuracy in equal: " + str(best_accuracy) + " for k equal:" + str(best_k) + ".")
+    print("Best accuracy in equal: " + str(best_accuracy) + " for k equal: " + str(best_k) + ".")
