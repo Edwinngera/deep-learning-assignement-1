@@ -63,7 +63,6 @@ if __name__ == "__main__":
     test_batch_iter = iter(test_batch_gen)
     test_batch = next(test_batch_iter)
 
-
     # scope = (11, 100, 22)
     # best_accuracy, best_k, search_result = grid_search_optimizer(train_batch, validation_batch, test_batch,
     #                                                              scope, 3072, 2)
@@ -81,5 +80,3 @@ if __name__ == "__main__":
     plt.ylabel('accuracy')
     plt.plot(k_values, accuracy_values, 'r+')
     x = 0
-
-# >>>>>>> refs/remotes/origin/master

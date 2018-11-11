@@ -27,7 +27,6 @@ class Model(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-
     def train(self, data: np.ndarray, labels: np.ndarray) -> float:
         '''
         Train the model on batch of data.
