@@ -63,6 +63,7 @@ class Accuracy(PerformanceMeasure):
         self.prediction = None
         self.target = None
         self.accuracy_value = 0.
+        self.true_predictions = 0
 
     def reset(self):
         '''
@@ -72,6 +73,7 @@ class Accuracy(PerformanceMeasure):
         self.prediction = None
         self.target = None
         self.accuracy_value = 0.
+        self.true_predictions = 0
 
     def update(self, prediction: np.ndarray, target: np.ndarray):
         '''
@@ -89,6 +91,11 @@ class Accuracy(PerformanceMeasure):
 
         self.prediction = prediction
         self.target = target
+
+        outcome = np.argmax(self.prediction, axis=1)
+        for oc, tr in zip(outcome, self.target):
+            if oc == tr:
+                self.true_predictions += 1
 
     def __str__(self):
         '''
@@ -131,10 +138,5 @@ class Accuracy(PerformanceMeasure):
         Returns 0 if no data is available (after resets).
         '''
 
-        true_predictions = 0
-        outcome = np.argmax(self.prediction, axis=1)
-        for oc, tr in zip(outcome, self.target):
-            if oc == tr:
-                true_predictions += 1
-        self.accuracy_value = true_predictions/len(self.prediction)
+        self.accuracy_value = self.true_predictions/len(self.prediction)
         return self.accuracy_value
