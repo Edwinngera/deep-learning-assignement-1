@@ -44,7 +44,8 @@ def grid_search_optimizer(train: Batch, validation: Batch, test: Batch,
     accuracy = Accuracy()
     best_knn_classifier.train(train.data, train.label)
     predictions = best_knn_classifier.predict(test.data)
-    accuracy.update(predictions, test.label)
+    accuracy.update(predictions, test.label
+                    )
     best_accuracy_test = accuracy.accuracy()
     return best_k, best_accuracy_valid, best_accuracy_test, accuracy_results, k_values
 
@@ -63,20 +64,16 @@ if __name__ == "__main__":
     test_batch_iter = iter(test_batch_gen)
     test_batch = next(test_batch_iter)
 
-    # scope = (11, 100, 22)
-    # best_accuracy, best_k, search_result = grid_search_optimizer(train_batch, validation_batch, test_batch,
-    #                                                              scope, 3072, 2)
-    # for accuracy, k in search_result:
-    #     print("Accuracy: " + str(accuracy) + " k: " + str(k) + ".")
-    # print("Best accuracy in equal: " + str(best_accuracy) + " for k equal: " + str(best_k) + ".")
 
     scope = (1, 101, 10)
     best_k, best_ac_valid, best_ac_test, accuracy_values, k_values = grid_search_optimizer(train_batch, validation_batch, test_batch, scope, 3072, 2)
+
     print("Best accuracy using validation set: " + str(best_ac_valid) + " for k equal:" + str(best_k) + ".")
     print("Best accuracy using test set: " + str(best_ac_test) + " using best k of validation set.")
     plt.figure()
     plt.title('Accuracies for different k values')
     plt.xlabel('k')
+
     plt.ylabel('accuracy')
     plt.plot(k_values, accuracy_values, 'r+')
     x = 0

@@ -16,6 +16,7 @@ def unpickle(file):
 
 def check_files_exist(file_names):
     """
+
     Check if paths given in input exist.
     """
     for file in file_names:

@@ -126,21 +126,20 @@ class KnnClassifier(Model):
     def check_correctness_of_matrix_data(self, data: np.ndarray):
 
         if not isinstance(data, np.ndarray):
-            raise TypeError("The batch size is not np.ndarray type, but: " + str(type(data)) + ".")
+            raise TypeError("The data is not np.ndarray type, but: " + str(type(data)) + ".")
 
         if not np.issubdtype(data.dtype, np.float32):
-            raise TypeError("The data has not value type np.float32, data type is: " + str(data.dtype) + ".")
+            raise TypeError("The data does not have data type np.float32, but: " + str(data.dtype) + ".")
 
         if not data.shape[1] == self.input_dim:
-            raise RuntimeError("Size of inputs vectors in not equal with value specified in the constructor of"
-                               "classifier: " + str(data.shape[1]) + " != " + str(self.input_dim) + ".")
+            raise RuntimeError("Size of input vectors in not equal to value specified in the constructor of classifier: " + str(data.shape[1]) + " != " + str(self.input_dim) + ".")
 
     def check_correctness_of_labels(self, labels: np.ndarray):
         if not isinstance(labels, np.ndarray):
             raise TypeError("The batch size is not np.ndarray type, but: " + str(type(labels)) + ".")
 
         if not np.issubdtype(labels.dtype, np.integer):
-            raise TypeError("The labels has not value type integer, labels type is: " + str(labels.dtype) + ".")
+            raise TypeError("The labels do not have data type integer, but: " + str(labels.dtype) + ".")
 
         if not (labels < self.num_classes).all():
-            raise ValueError("The labels contain unknown class.")
+            raise ValueError("The labels contain unknown classes.")
